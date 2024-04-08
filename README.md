@@ -68,3 +68,17 @@ To containerize the application and run it using Docker
  curl http://localhost:8080/hello
  `
    You should receive a "Hello, World!" response if everything is set up correctly.
+
+
+### Training the Model
+
+To train a model and have it saved to /models... navigate to /notebooks where the training process happens.
+Running this Juypter Notebook will train a very basic model and save it to the project.
+
+
+### Running Classification
+
+Make sure you've follow the Running the Application with Docker process mentioned earlier. If so you can now send a cURL request like this...
+```bash
+curl -XPOST --data-binary @./data/sample/malware/000077419ead44800537b34f5c2137e572c472698a13c39151f90eaabde7c94e.exe http://127.0.0.1:8080/ -H "Content-Type: application/octet-stream"
+```

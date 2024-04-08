@@ -142,3 +142,6 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+# MacOS Specific
+.DS_Store
