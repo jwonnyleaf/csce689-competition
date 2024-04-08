@@ -6,9 +6,9 @@ This project is developed as part of the coursework for CSCE689: ML-Based Cyber 
 
 Before you begin, ensure you have the following installed:
 
-- Python (version 3.6 or newer)
+- Python (version 3.12 or newer)
 - Docker
-- Conda (optional, but recommended for managing Python environments)
+- Conda (optional, but highly recommended for managing Python environments)
 
 ## Installation
 
