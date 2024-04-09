@@ -5,6 +5,8 @@ import os
 import pickle
 import numpy as np
 import hashlib
+import torch
+from defender.models import MalConvPlus
 
 from src.extract.feature_extraction import extract_features
 
@@ -29,7 +31,7 @@ def create_app():
         print(f"Received {len(data)} bytes of data.")
 
         # Extract features from the data
-        features_data = extract_features(data)
+        features_data, header = extract_features(data)
 
         # Load the model and make a prediction
         clf = joblib.load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/malware_classifier.joblib"))
@@ -37,7 +39,30 @@ def create_app():
         pe_features = np.array([features_data[feature] for feature in features])
         prediction = clf.predict([pe_features])
 
-        return jsonify({"prediction": int(prediction[0])})
+        # Load MalConV mocdel
+        embed_dim = 8
+        max_len = 4096
+        out_channels = 128
+        window_size = 32
+        dropout = 0.5
+        weight_path = "../models/malconv_plus.pt"
+        if torch.cuda.available():
+            device = torch.device("cuda")
+        else:
+            device = torch.device("cpu")
+        model = MalConvPlus(embed_dim, max_len, out_channels, window_size, dropout)
+        model.load_state_dict(torch.load(weight_path))
+        model.to(device)
+        model.eval()
+        input = torch.tensor(header).unsqueeze(0).to(device)
+        prediction2 = model(input)
+        prediction2 = (prediction2 > 0).to(int)
+
+        if int(prediction[0]) or int(prediction2[0]):
+            return jsonify({"prediction": 1})
+        else:
+            return jsonify({"prediction": 0})
+        # return jsonify({"prediction": int(prediction[0])})
 
     @app.route("/model", methods=["GET"])
     def get_model():
