@@ -47,6 +47,6 @@ def extract_features(data):
     features["LoaderFlags"] = pe.OPTIONAL_HEADER.LoaderFlags
     features["NumberOfRvaAndSizes"] = pe.OPTIONAL_HEADER.NumberOfRvaAndSizes
 
-    return features, list(pe.header)
+    return features
 
     
