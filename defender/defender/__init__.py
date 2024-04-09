@@ -45,8 +45,8 @@ def create_app():
         out_channels = 128
         window_size = 32
         dropout = 0.5
-        weight_path = "../models/malconv_plus.pt"
-        if torch.cuda.available():
+        weight_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/malconv_plus.pt")
+        if torch.cuda.is_available():
             device = torch.device("cuda")
         else:
             device = torch.device("cpu")
@@ -58,11 +58,12 @@ def create_app():
         prediction2 = model(input)
         prediction2 = (prediction2 > 0).to(int)
 
-        if int(prediction[0]) or int(prediction2[0]):
+        if int(prediction[0]) and int(prediction2[0]):
+            return jsonify({"prediction": 1})
+        elif int(prediction[0]) or int(prediction2[0]):
             return jsonify({"prediction": 1})
         else:
             return jsonify({"prediction": 0})
-        # return jsonify({"prediction": int(prediction[0])})
 
     @app.route("/model", methods=["GET"])
     def get_model():
