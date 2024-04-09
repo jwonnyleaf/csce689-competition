@@ -1,11 +1,7 @@
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-import joblib
-import os
-import pickle
+import joblib, os, pickle, hashlib, torch, time
 import numpy as np
-import hashlib
-import torch
 from defender.models import MalConvPlus
 
 from src.extract.feature_extraction import extract_features
@@ -24,6 +20,9 @@ def create_app():
 
     @app.route("/", methods=["POST"])
     def handle_request():
+        start_time = time.time()
+        malware = False
+
         if request.headers["Content-Type"] != "application/octet-stream":
             return jsonify({"error": "expecting application/octet-stream"}), 400
 
@@ -59,12 +58,17 @@ def create_app():
         prediction2 = (prediction2 > 0).to(int)
 
         if int(prediction[0]) and int(prediction2[0]):
-            return jsonify({"prediction": 1})
+            malware = True
         elif int(prediction[0]) or int(prediction2[0]):
-            return jsonify({"prediction": 1})
+            malware = True
         else:
-            return jsonify({"prediction": 0})
+            malware = False
+        
+        end_time = time.time() 
+        elapsed_time = end_time - start_time
 
+        return "Process Time: {} seconds\nMalware: {}".format(elapsed_time, malware)
+    
     @app.route("/model", methods=["GET"])
     def get_model():
         return jsonify({"model": "model.h5"})
