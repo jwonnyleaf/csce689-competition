@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import joblib, os, pickle, hashlib, torch, time
 import numpy as np
 from defender.models import MalConvPlus
+import hashlib
 
 from src.extract.feature_extraction import extract_features
 
@@ -32,7 +33,7 @@ def create_app():
         predictions = []
 
         # Extract features from the data
-        features_data, header = extract_features(data)
+        features_data = extract_features(data)
 
         # Load the Models
         
