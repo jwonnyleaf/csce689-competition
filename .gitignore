@@ -145,3 +145,6 @@ pyrightconfig.json
 
 # MacOS Specific
 .DS_Store
+
+# Data
+data/

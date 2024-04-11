@@ -29,16 +29,21 @@ def create_app():
         data = request.get_data()
         print(f"Received {len(data)} bytes of data.")
 
+        predictions = []
+
         # Extract features from the data
         features_data, header = extract_features(data)
 
-        # Load the model and make a prediction
+        # Load the Models
+        
+        # Load Initial Model
         clf = joblib.load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/malware_classifier.joblib"))
         features = pickle.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/features.pkl"), "rb"))
         pe_features = np.array([features_data[feature] for feature in features])
-        prediction = clf.predict([pe_features])
+        prediction1 = clf.predict([pe_features])
+        predictions.append(prediction1)
 
-        # Load MalConV mocdel
+        # Load Malconv Model
         embed_dim = 8
         max_len = 4096
         out_channels = 128
@@ -56,13 +61,16 @@ def create_app():
         input = torch.tensor(header).unsqueeze(0).to(device)
         prediction2 = model(input)
         prediction2 = (prediction2 > 0).to(int)
+        predictions.append(prediction2)
 
-        if int(prediction[0]) and int(prediction2[0]):
+        # Load Bodmas Model
+        bodmas_clf = joblib.load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/bodmas/model.joblib"))
+        prediction3 = bodmas_clf.predict([pe_features])
+        predictions.append(prediction3)
+        
+        # Majority Voting
+        if sum(predictions) >= 2:
             malware = True
-        elif int(prediction[0]) or int(prediction2[0]):
-            malware = True
-        else:
-            malware = False
         
         end_time = time.time() 
         elapsed_time = end_time - start_time
@@ -71,6 +79,6 @@ def create_app():
     
     @app.route("/model", methods=["GET"])
     def get_model():
-        return jsonify({"model": "model.h5"})
+        return jsonify({"model": "tbd"})
 
     return app
