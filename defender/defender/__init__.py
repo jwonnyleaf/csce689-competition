@@ -19,7 +19,7 @@ def create_app():
     @app.route("/", methods=["POST"])
     def handle_request():
         start_time = time.time()
-        malware = False
+        malware = 0
 
         if request.headers["Content-Type"] != "application/octet-stream":
             return jsonify({"error": "expecting application/octet-stream"}), 400
@@ -67,12 +67,15 @@ def create_app():
         
         # Majority Votingß
         if sum(predictions) >= 2:
-            malware = True
+            malware = 1
         
         end_time = time.time() 
         elapsed_time = end_time - start_time
 
-        return "Malware: {} in {} seconds\n".format(malware, elapsed_time)
+        return jsonify({
+            "malware": malware,
+            "elapsed_time": elapsed_time
+        })
     
     @app.route("/model", methods=["GET"])
     def get_model():

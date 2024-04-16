@@ -11,11 +11,13 @@ baseDirectory = os.path.join(os.path.dirname(os.path.realpath(__file__)), "datas
 # Create or open the CSV file to record the results
 with open(baseDirectory + '/results.csv', 'w', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(['Group', 'File Name', 'Malware', 'Truth', 'Response Time'])
+    writer.writerow(['Group', 'Percentage'])
 
     # Iterate through all folders and their files in the test datasets directory
     for folder in os.listdir(baseDirectory):
         folderPath = os.path.join(baseDirectory, folder)
+        totalFiles = 0
+        correctPredictions = 0
         if os.path.isdir(folderPath):
             for file in os.listdir(folderPath):
                 filePath = os.path.join(folderPath, file)
@@ -27,16 +29,22 @@ with open(baseDirectory + '/results.csv', 'w', newline='') as file:
                         'http://127.0.0.1:8080/',
                         '-H', 'Content-Type: application/octet-stream'
                     ]
-                    # Run the cURL command and capture the output
-                    result = subprocess.run(curlCMD, stdout=subprocess.PIPE)
-                    if result.stdout:
-                        resultStr = result.stdout.decode('utf-8')
-                        # Extract the malware prediction and response time from the output
-                        malware = re.search(r'Malware: (True|False)', resultStr).group(1)
-                        truth = 'True' if 'mw' in folder else 'False'
-                        responseTime = re.search(r'in (\d+\.\d+) seconds', resultStr).group(1)
-                        writer.writerow([folder, file, malware, truth, responseTime])
-                    if result.stderr:
-                        print(f"Error processing {file}: {result.stderr}")
+                    # Run the cURL command and capture the JSON response
+                    response = subprocess.run(curlCMD, stdout=subprocess.PIPE)
+                    response = response.stdout.decode('utf-8')
+                    # Extract the prediction from the JSON response
+                    prediction = re.search(r'"malware":\s*(\d)', response)
+                    if prediction:
+                        prediction = int(prediction.group(1))
+                        if prediction == 1:
+                            correctPredictions += 1
+                        totalFiles += 1 
+
+            try:
+                percentage = (correctPredictions / totalFiles) * 100
+                writer.writerow([folder, "{:.2f}%".format(percentage)])
+            except ZeroDivisionError:
+                writer.writerow([folder, "0%"])
+
 
 print("Finished processing test datasets.")
