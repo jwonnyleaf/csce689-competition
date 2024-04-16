@@ -1,6 +1,6 @@
 flask==3.0.2
 gunicorn==21.2.0
-python-dotenv==1.0.1
-scikit-learn
+scikit-learn==1.4.1.post1
 pefile
 pandas
+torch==2.2.2

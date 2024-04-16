@@ -1,4 +1,4 @@
-FROM python:3.12.2-slim as builder
+FROM python:3.10.14-slim as builder
 
 WORKDIR /build
 
@@ -6,9 +6,9 @@ COPY docker-requirements.txt .
 
 RUN pip install --no-cache-dir -r docker-requirements.txt
 
-FROM python:3.12.2-slim
+FROM python:3.10.14-slim
 
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 WORKDIR /app

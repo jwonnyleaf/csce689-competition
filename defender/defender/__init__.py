@@ -1,13 +1,10 @@
 from flask import Flask, request, jsonify
-from dotenv import load_dotenv
 import joblib, os, pickle, hashlib, torch, time
 import numpy as np
 from defender.models import MalConvPlus
 import hashlib
 
 from src.extract.feature_extraction import extract_features
-
-load_dotenv()
 
 LOCAL_FILE_PATH=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample/002ce0d28ec990aadbbc89df457189de37d8adaadc9c084b78eb7be9a9820c81.exe")
 
@@ -33,16 +30,14 @@ def create_app():
         predictions = []
 
         # Extract features from the data
-        features_data = extract_features(data)
+        features_data, header = extract_features(data)
 
-        # Load the Models
-        
         # Load Initial Model
         clf = joblib.load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/malware_classifier.joblib"))
         features = pickle.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/features.pkl"), "rb"))
         pe_features = np.array([features_data[feature] for feature in features])
         prediction1 = clf.predict([pe_features])
-        predictions.append(prediction1)
+        predictions.append(prediction1[0])
 
         # Load Malconv Model
         embed_dim = 8
@@ -62,21 +57,22 @@ def create_app():
         input = torch.tensor(header).unsqueeze(0).to(device)
         prediction2 = model(input)
         prediction2 = (prediction2 > 0).to(int)
-        predictions.append(prediction2)
+        predictions.append(prediction2[0].item())
 
         # Load Bodmas Model
         bodmas_clf = joblib.load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/bodmas/model.joblib"))
-        prediction3 = bodmas_clf.predict([pe_features])
-        predictions.append(prediction3)
         
-        # Majority Voting
+        prediction3 = bodmas_clf.predict([pe_features])
+        predictions.append(prediction3[0])
+        
+        # Majority Votingß
         if sum(predictions) >= 2:
             malware = True
         
         end_time = time.time() 
         elapsed_time = end_time - start_time
 
-        return "Process Time: {} seconds\nMalware: {}".format(elapsed_time, malware)
+        return "Malware: {} in {} seconds\n".format(malware, elapsed_time)
     
     @app.route("/model", methods=["GET"])
     def get_model():
