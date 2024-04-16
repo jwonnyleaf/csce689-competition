@@ -37,7 +37,7 @@ def create_app():
         features = pickle.load(open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/features.pkl"), "rb"))
         pe_features = np.array([features_data[feature] for feature in features])
         prediction1 = clf.predict([pe_features])
-        predictions.append(prediction1[0])
+        predictions.append(int(prediction1[0]))
 
         # Load Malconv Model
         embed_dim = 8
@@ -57,13 +57,13 @@ def create_app():
         input = torch.tensor(header).unsqueeze(0).to(device)
         prediction2 = model(input)
         prediction2 = (prediction2 > 0).to(int)
-        predictions.append(prediction2[0].item())
+        predictions.append(int(prediction2[0].item()))
 
         # Load Bodmas Model
         bodmas_clf = joblib.load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/bodmas/model.joblib"))
         
         prediction3 = bodmas_clf.predict([pe_features])
-        predictions.append(prediction3[0])
+        predictions.append(int(prediction3[0]))
         
         # Majority Votingß
         if sum(predictions) >= 2:
@@ -71,10 +71,10 @@ def create_app():
         
         end_time = time.time() 
         elapsed_time = end_time - start_time
-
         return jsonify({
             "malware": malware,
-            "elapsed_time": elapsed_time
+            "elapsed_time": elapsed_time,
+            "predictions": predictions
         })
     
     @app.route("/model", methods=["GET"])
