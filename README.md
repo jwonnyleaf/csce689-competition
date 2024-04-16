@@ -82,3 +82,9 @@ Make sure you've follow the Running the Application with Docker process mentione
 ```bash
 curl -XPOST --data-binary @./data/sample/malware/000077419ead44800537b34f5c2137e572c472698a13c39151f90eaabde7c94e.exe http://127.0.0.1:8080/ -H "Content-Type: application/octet-stream"
 ```
+
+### Running Test with Provided Test Set
+Run the following command to get an output test suite (results.csv)
+```bash
+python3 test/test.py
+```
