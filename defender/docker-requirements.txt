@@ -1,6 +1,12 @@
-flask==3.0.2
-gunicorn==21.2.0
-scikit-learn==1.4.1.post1
+flask
+gunicorn
+scikit-learn
 pefile
-pandas
-torch==2.2.2
+torch
+tensorflow==2.5.0
+h5py
+lief==0.9.0
+tqdm>=4.31.0
+numpy>=1.16.3
+pandas>=0.24.2
+lightgbm>=2.2.3
