@@ -4,11 +4,14 @@ FROM python:3.6.4-slim as builder
 # Set the working directory
 WORKDIR /build
 
-# Install Docker Requirement
-RUN pip install -r docker-requirements.txt
+COPY docker-requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r docker-requirements.txt
 
-# Install TensorFlow
-RUN pip install /tmp/tensorflow_wheel/tensorflow-*.whl
+RUN apt-get update && apt-get install -y \
+    git
+
+RUN pip install git+https://github.com/elastic/ember.git
 
 FROM python:3.6.4-slim
 

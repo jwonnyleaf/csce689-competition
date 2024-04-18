@@ -28,7 +28,7 @@ You can skip this step if you're using Docker to run the project.
 If using `conda` (recommended):
 
 ```bash
-conda create --name defender-app python=3.12.2
+conda create --name defender-app python=3.6.4
 conda activate defender-app
 ```
 

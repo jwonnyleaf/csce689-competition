@@ -3,7 +3,6 @@ import joblib, os, pickle, hashlib, torch, time
 import numpy as np
 from defender.models import MalConvPlus
 import hashlib
-from tensorflow.keras.models import model_from_json
 import ember
 
 LOCAL_FILE_PATH=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample/002ce0d28ec990aadbbc89df457189de37d8adaadc9c084b78eb7be9a9820c81.exe")
@@ -34,18 +33,35 @@ def create_app():
 
         predictions = []
 
-        # Load Neural Network Model
-        model_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/model.json")
-        weights_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/model.h5")
-        with open(model_path, "r") as json_file:
-            model = json_file.read()
+        # Load PyTorch model (malware detection)
+        class MalwareDetector(nn.Module):
+            def __init__(self, input_size, hidden_size, output_size):
+                super(MalwareDetector, self).__init__()
+                self.rnn = nn.RNN(input_size, hidden_size, batch_first=True)
+                self.fc = nn.Linear(hidden_size, output_size)
 
-        nn_model = model_from_json(model)
-        nn_model.load_weights(weights_path)
+            def forward(self, x):
+                x = x.unsqueeze(1)
+                out, _ = self.rnn(x)
+                last_output = out[:, -1, :]
+                out = self.fc(last_output)
+                return out
 
-        nn_prediction = nn_model.predict(features)
-        predictions.append(nn_prediction[0][0])
-        
+
+        input_size = features.shape[1]
+        hidden_size = 64
+        output_size = 2
+        dl_model = MalwareDetector(input_size, hidden_size, output_size)
+        dl_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/malware_detector.pth")
+        dl_model.load_state_dict(torch.load(dl_path))
+        dl_model.eval()
+
+        with torch.no_grad():
+            features = torch.tensor(features, dtype=torch.float32)
+            output = dl_model(features)
+            _, predicted = torch.max(output, 1)
+            predictions.append(predicted.item())
+
         # Majority Voting
         if sum(predictions) >= 1:
             malware = 1
