@@ -17,7 +17,7 @@ Before you begin, ensure you have the following installed:
 First, clone the project repository to your local machine:
 
 ```bash
-  git clone hhttps://github.com/jwonnyleaf/csce689-competition.git
+  git clone https://github.com/jwonnyleaf/csce689-competition.git
   cd defender
 ```
 
