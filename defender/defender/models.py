@@ -2,7 +2,19 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
+# Load PyTorch model (malware detection)
+class MalwareDetector(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(MalwareDetector, self).__init__()
+        self.rnn = nn.RNN(input_size, hidden_size, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
 
+    def forward(self, x):
+        x = x.unsqueeze(1)
+        out, _ = self.rnn(x)
+        last_output = out[:, -1, :]
+        out = self.fc(last_output)
+        return out
 class MalConvBase(nn.Module):
     def __init__(self, embed_dim, _, out_channels, window_size, dropout=0.5):
         super(MalConvBase, self).__init__()
