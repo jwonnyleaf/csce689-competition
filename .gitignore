@@ -145,8 +145,3 @@ pyrightconfig.json
 
 # MacOS Specific
 .DS_Store
-
-# Data
-data/
-evade1/
-attack/
