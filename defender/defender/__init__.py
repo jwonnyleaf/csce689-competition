@@ -24,9 +24,16 @@ def create_app():
         features_data = extract_features(data)
 
         # Load the Models
+        rf_model = joblib.load(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../models/rf_ember_subset.joblib"))
 
         # Initial Variables
         predictions = []
+
+        # Make Predictions
+        rf_model_prediction = rf_model.predict(features_data)
+
+        # Append Predictions
+        predictions.append(int(rf_model_prediction[0]))
 
         # Majority Voting
         malware = False
