@@ -43,7 +43,8 @@ with open(baseDirectory + '/results.csv', 'w', newline='') as file:
                         totalFiles += 1
 
                     # Extract the individual predictions from the JSON response
-                    predictions = re.findall(r'"predictions":\s*\[(\d),\s*(\d),\s*(\d)\]', response)
+                    predictions = re.findall(r'"predictions":\s*\[(\d),\s*(\d)\]', response)
+                    # predictions = re.findall(r'"predictions":\s*\[(\d),\s*(\d),\s*(\d)\]', response)
                     if predictions:
                         predictions = predictions[0]
                         for i in range(len(predictions)):
