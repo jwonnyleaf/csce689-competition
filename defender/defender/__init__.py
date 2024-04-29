@@ -9,6 +9,7 @@ from defender.utils.load_models import load_model
 # from defender.defender.utils.load_models import load_model
 
 LOCAL_FILE_PATH=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/sample/002ce0d28ec990aadbbc89df457189de37d8adaadc9c084b78eb7be9a9820c81.exe")
+
 def pipeline(malconv, rf_prob0, rf_prob1):
     if rf_prob0 > 0.43:
         return 0
