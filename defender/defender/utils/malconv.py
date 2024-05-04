@@ -124,6 +124,7 @@ class AttentionRCNN(nn.Module):
         bidirectional,
         attn_size,
         residual,
+        device,
         dropout=0.5,
     ):
         super(AttentionRCNN, self).__init__()
@@ -132,6 +133,7 @@ class AttentionRCNN(nn.Module):
             "GRU",
             "LSTM",
         }, "`module` must be a `torch.nn` recurrent layer"
+        self.device = device
         self.residual = residual
         self.embed = nn.Embedding(257, embed_dim)
         self.conv = nn.Conv1d(
@@ -177,3 +179,7 @@ class AttentionRCNN(nn.Module):
             fc_in = torch.cat((fc_in, values), dim=-1)
         output = self.fc(fc_in).squeeze(1)
         return output
+    
+    def predict(self, input):
+        input = torch.tensor(input).unsqueeze(0).to(self.device)
+        return torch.sigmoid(self(input))
